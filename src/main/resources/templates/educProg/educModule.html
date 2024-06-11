@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.css}">
+    <meta charset="UTF-8">
+    <title>Образовательные программы</title>
+</head>
+<body>
+    <div class="container">
+        <form th:action="@{/educProg/modules/add}" th:method="POST" th:object="${program}">
+            <h1 th:text="${program.getTitle()}"></h1>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <td>Идентификатор (UUID)</td>
+                <td>Название</td>
+                <td>Тип модуля</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each = "modul: ${program.getModuleTitles()}">
+                <th th:text="${modul.getUuid()}"></th>
+                <td th:text="${modul.getTitle()}">title</td>
+                <td th:text="${modul.getType()}">type</td>
+                <td><a th:href="@{/{educId}(educId=${program.getUuid()})/educProg/modules/delete/{moduleId}(moduleId=${modul.getUuid()})}" type="button" class="btn btn-dark deleteButton">Удалить</a></td>
+            </tr>
+            </tbody>
+        </table>
+            <select class="form-select" aria-label="Default select example" th:field="*{addedModuleId}">
+                <option value="" disabled selected>Open this select menu</option>
+                <option th:each="modul : ${freeModules}" th:value="${modul.getUuid()}" th:text="${modul.getTitle()}"></option>
+            </select>
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </form>
+    </div>
+</body>
+</html>

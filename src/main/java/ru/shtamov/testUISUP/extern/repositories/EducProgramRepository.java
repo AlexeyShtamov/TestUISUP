@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.shtamov.testUISUP.domain.EducProgram;
 
 @Repository
-public interface EducProgramRepository extends JpaRepository<EducProgram, Long> {
-
+public interface EducProgramRepository extends JpaRepository<EducProgram, String> {
 
 }

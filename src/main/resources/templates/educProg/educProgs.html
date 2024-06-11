@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="webjars/bootstrap/5.3.3/css/bootstrap.css" rel="stylesheet" />
+    <script type="text/javascript" src="webjars/bootstrap/5.3.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="webjars/jquery/3.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../../static/js/module.js" th:src="@{/js/prog.js}"></script>
+    <meta charset="UTF-8">
+    <title>Образовательные программы</title>
+</head>
+<body>
+    <div th:if="${message}"  class="alert alert-danger alert-dismissible fade show" role="alert" id="dangerAlert">
+        Образовательная с данным uuid уже существует.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+        const alert = bootstrap.Alert.getOrCreateInstance('#myAlert')
+        alert.close()
+    </script>
+    <div class="container">
+        <table class="table table-bordered">
+        <thead>
+        <tr>
+            <td>Идентификатор (UUID)</td>
+            <td>Название</td>
+            <td>Шифр</td>
+            <td>Уровень обучения</td>
+            <td>Стандарт обучения</td>
+            <td>Институт</td>
+            <td>Ответственное лицо</td>
+            <td>Дата следующей аккредитации</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each = "program:${programs}">
+            <th>
+                <a th:href="@{/educProg/modules/{id}(id=${program.getUuid()})}" class="checkButton">
+                    <span th:text="${program.getUuid()}"></span>
+                </a>
+            </th>
+            <td th:text="${program.getTitle()}">title</td>
+            <td th:text="${program.getCypher()}">cypher</td>
+            <td th:text="${program.getLevel().getValue()}">level</td>
+            <td th:text="${program.getStandard().getValue()}">standard</td>
+            <td th:text="${program.getInstituteTitle()}">insitute</td>
+            <td th:text="${program.getHeadName()}">head</td>
+            <td th:text="${program.getAccreditationTime().toString()}">time</td>
+            <td><a th:href="@{/educProg/{id}(id=${program.getUuid()})}" type="button" class="btn btn-info updateButton educ-prog">Обновить</a></td>
+            <td><a th:href="@{/educProg/delete/{id}(id=${program.getUuid()})}" type="button" class="btn btn-dark deleteButton">Удалить</a></td>
+        </tr>
+        </tbody>
+    </table>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal" data-bs-whatever="@mdo">Добавить образовательную программу</button>
+    </div>
+
+
+
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <form th:action="@{/educProg}" class="needs-validation" method="post" novalidate>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Создание образовательной программы</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="addId" class="col-form-label">Идентификатор (в формате UUID):</label>
+                            <input type="text" class="form-control" id="addId" name="uuid"
+                                   pattern="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" required>
+                            <div class="invalid-feedback">
+                                Итендификатор должен соответстовать формату UUID (пример: 45f4b55c-5934-4409-92e2-a738fc9ffddc)
+                            </div>
+
+                        </div>
+                        <div class="mb-3">
+                            <label for="addName" class="col-form-label">Название:</label>
+                            <input class="form-control" id="addName" name="title" minlength="3" maxlength="200" required>
+                            <div class="invalid-feedback" >
+                                Название должно содержать минимум 3 символа
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addCypher" class="col-form-label">Шифр:</label>
+                            <input class="form-control" id="addCypher" name="cypher"
+                                      pattern="^\d{2}\.\d{2}\.\d{2}\/\d{2}\.\d{2}$" required>
+                            <div class="invalid-feedback" >
+                                Шифр должен соответстовать определенному формату (пример: 09.04.03/33.03)
+                            </div>
+                        </div>
+                        <div class="form-group col-form-label">
+                            <label for="addLevel">Уровень:</label>
+                            <select class="form-control" id="addLevel" name="level">
+                                <option th:each="level : ${levels}" th:value="${level}" th:text="${level.getValue()}" name="level"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-form-label">
+                            <label for="addStandard">Стандарт:</label>
+                            <select class="form-control" id="addStandard" name="standard">
+                                <option th:each="standard : ${standards}" th:value="${standard}" th:text="${standard.getValue()}" name="standard"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-form-label">
+                            <label for="addInstitute">Институт:</label>
+                            <select class="form-control" id="addInstitute" name="instituteTitle">
+                                <option th:each="institute : ${institutes}" th:value="${institute}" th:text="${institute}" name="instituteTitle"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-form-label">
+                            <label for="addHead">Руководитель:</label>
+                            <select class="form-control" id="addHead" name="headName">
+                                <option th:each="head : ${heads}" th:value="${head}" th:text="${head}" name="headName"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addDate" class="col-form-label">Дата следующей аккредитации:</label>
+                            <input placeholder="гггг-ММ-дд" class="form-control" id="addDate" name="accreditationTime"
+                                   pattern="^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$" required>
+                            <div class="invalid-feedback" >
+                                Дату должна быть следующего формата: 2025-03-14
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отменить</button>
+                        <button type="submit" class="btn btn-primary">Добавить</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <form th:action="@{/educProg/update}" th:method="post">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="updatedModalLabel">Редактирование образовательной программы</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="updateId" class="col-form-label">Идентификатор (в формате UUID):</label>
+                            <input type="text" class="form-control" id="updateId" name="uuid" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateName" class="col-form-label">Название:</label>
+                            <textarea class="form-control" id="updateName" name="title"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateCypher" class="col-form-label">Шифр:</label>
+                            <textarea class="form-control" id="updateCypher" name="cypher"></textarea>
+                        </div>
+                        <div class="form-group col-form-label">
+                            <label for="updateLevel">Уровень:</label>
+                            <select class="form-control" id="updateLevel" name="level">
+                                <option th:each="level : ${levels}" th:value="${level}" th:text="${level.getValue()}" name="level"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-form-label">
+                            <label for="updateStandard">Стандарт:</label>
+                            <select class="form-control" id="updateStandard" name="standard">
+                                <option th:each="standard : ${standards}" th:value="${standard}" th:text="${standard.getValue()}" name="standard"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-form-label">
+                            <label for="updateInstitute">Институт:</label>
+                            <select class="form-control" id="updateInstitute" name="instituteTitle">
+                                <option th:each="institute : ${institutes}" th:value="${institute}" th:text="${institute}" name="instituteTitle"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col-form-label">
+                            <label for="updateHead">Выберите руководителя</label>
+                            <select class="form-control" id="updateHead" name="headName">
+                                <option th:each="head : ${heads}" th:value="${head}" th:text="${head}" name="headName"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateDate" class="col-form-label">Дата следующей аккредитации:</label>
+                            <input placeholder="гггг-ММ-дд" class="form-control" id="updateDate" name="accreditationTime"
+                                   pattern="^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$" required>
+                            <div class="invalid-feedback" >
+                                Дату должна быть следующего формата: 2025-03-14
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button id="update" type="submit" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Modal body text goes here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отменить</button>
+                    <a href="" id="deleteId" type="button" class="btn btn-danger">Удалить</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
